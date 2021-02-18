@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-plugin-sync",
+  "name": "Plugin Sync",
+  "version": "1.0.0",
+  "minAppVersion": "v0.11.0",
+  "description": "Helps tools sync plugin installations without having to sync plugin files themselves",
+  "author": "zephraph",
+  "authorUrl": "https://github.com/zephraph/"
+}
