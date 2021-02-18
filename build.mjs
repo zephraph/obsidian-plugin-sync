@@ -1,15 +1,16 @@
-const { globalExternals } = require('@fal-works/esbuild-plugin-global-externals')
-const esbuild = require('esbuild')
+import path from "path";
+import esbuild from "esbuild";
 
 const globals = {
-  codemirror: 'CodeMirror'
-}
+  codemirror: "CodeMirror",
+};
 
 esbuild.build({
-  entryPoints: ['src/index.ts'],
-  outfile: "dist/main.js",
+  entryPoints: ["src/index.ts"],
+  outfile: path.join("dist", "main.js"),
   bundle: true,
-  format: 'cjs',
-  external: ['obsidian'],
-  plugins: [globalExternals(globals)]
-})
+  format: "cjs",
+  plugins: [globalExternals(globals)],
+  platform: "node",
+  external: ["obsidian"],
+});
