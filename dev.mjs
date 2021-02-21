@@ -9,14 +9,9 @@ import {
 import prompts from "prompts";
 import path from "path";
 
-import { globalExternals } from "@fal-works/esbuild-plugin-global-externals";
 import esbuild from "esbuild";
 
 const manifest = JSON.parse(await fs.readFile("./manifest.json", "utf-8"));
-
-const globals = {
-  codemirror: "CodeMirror",
-};
 
 let buildInfo = exists(".build-info")
   ? JSON.parse(await fs.readFile(".build-info", "utf-8"))
@@ -78,7 +73,6 @@ await esbuild.build({
   outfile: path.join(buildInfo.pluginPath || "dist", "main.js"),
   bundle: true,
   format: "cjs",
-  plugins: [globalExternals(globals)],
   platform: "node",
   external: ["obsidian"],
   watch: true,

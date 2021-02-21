@@ -1,5 +1,3 @@
-import { interleave } from "./utils";
-
 const INFO_COLOR = "#93C5FD";
 const ERROR_COLOR = "#FCA5A5";
 const WARN_COLOR = "#FCD34D";
@@ -12,9 +10,9 @@ const tag = (text: string, bgColor: string, color: string = "black") => {
   ];
 };
 
-export class Logger {
+class Logger {
   private isInGroup: boolean = false;
-  constructor(private pluginName: string) {}
+  private pluginName: string = "Plugin Sync";
 
   startGroup(groupName: string) {
     console.group(...tag(`${this.pluginName}: ${groupName}`, NULL_COLOR));
@@ -45,3 +43,5 @@ export class Logger {
     console.table(...args);
   }
 }
+
+export const log = new Logger();
