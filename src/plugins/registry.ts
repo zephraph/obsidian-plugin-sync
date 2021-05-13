@@ -1,6 +1,6 @@
 import { isBefore, subMinutes } from "date-fns";
-import { failIf, to } from "../utils";
 import { log } from "../Logger";
+import { failIf, to } from "obsidian-utils";
 
 const DEFAULT_REGISTRY_URL =
   "https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/community-plugins.json";

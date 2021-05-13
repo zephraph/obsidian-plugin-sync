@@ -1,16 +1,17 @@
 import { Plugin, PluginManifest } from "obsidian";
 import path from "path";
 import {
+  to,
+  toWrite,
   failIf,
   read,
+  toRead,
   fileStats,
-  to,
-  mapValues,
-  toReadFromPath,
-  listDirs,
-  unique,
-  toWriteToPath,
-} from "./utils";
+  toReadJSON,
+  installPluginFromRegistry,
+  isPluginInstalled,
+} from "obsidian-utils";
+import { mapValues, listDirs, unique } from "./utils";
 import { log } from "./Logger";
 
 export interface PluginSyncRecord {
@@ -22,19 +23,11 @@ export interface PluginSyncData {
   [pluginID: string]: PluginSyncRecord;
 }
 
-interface PluginRegistryRecord {
-  id: string;
-  name: string;
-  author: string;
-  description: string;
-  repo: string;
-}
-
 const PLUGIN_DATA_FILE = "plugin-sync.json";
 
 export default class PluginSyncPlugin extends Plugin {
   public vaultPath: string;
-  public pluginRegistry: PluginRegistryRecord[];
+  public pluginRegistry: PluginRegistry;
 
   public getPluginPath(plugin?: string) {
     const pluginsPath = path.join(this.vaultPath, ".obsidian", "plugins");
@@ -58,10 +51,7 @@ export default class PluginSyncPlugin extends Plugin {
         `Manifest failed to load: ${manifestReadError}`
       );
       const manifest: PluginManifest = JSON.parse(rawManifest);
-      const [, rawData] = await toReadFromPath(
-        this.getPluginPath(plugin),
-        "data.json"
-      );
+      const [, rawData] = await toRead(this.getPluginPath(plugin), "data.json");
       const record: PluginSyncRecord = {
         version: manifest.version,
         data: rawData ? JSON.parse(rawData) : undefined,
@@ -76,7 +66,14 @@ export default class PluginSyncPlugin extends Plugin {
     );
   }
 
-  private async installPlugin(pluginID: string, version: string) {}
+  private async installPlugin(pluginID: string, version: string) {
+    await installPlugin(
+      this.pluginRegistry,
+      pluginID,
+      version,
+      this.getPluginPath()
+    );
+  }
 
   private async sync() {
     const pluginSyncData = await this.loadData();
@@ -128,6 +125,7 @@ export default class PluginSyncPlugin extends Plugin {
   }
 
   async onload() {
+    this.app.vault.adapter;
     const { vault } = this.app.vault.getRoot();
     /**
      * This is technical a private API. `vault.path` for whatever reason is returning `/`.
@@ -144,7 +142,7 @@ export default class PluginSyncPlugin extends Plugin {
   }
 
   async loadData(): Promise<PluginSyncData> {
-    const [readError, data] = await toReadFromPath(
+    const [readError, data] = await toReadJSON(
       this.vaultPath,
       ".obsidian",
       PLUGIN_DATA_FILE
@@ -152,17 +150,14 @@ export default class PluginSyncPlugin extends Plugin {
     if (readError || !data) {
       return {};
     }
-    return mapValues<any, PluginSyncRecord>(
-      JSON.parse(data),
-      (pluginRecord) => ({
-        ...pluginRecord,
-        lastUpdated: new Date(pluginRecord.lastUpdated),
-      })
-    );
+    return mapValues<any, PluginSyncRecord>(data, (pluginRecord) => ({
+      ...pluginRecord,
+      lastUpdated: new Date(pluginRecord.lastUpdated),
+    }));
   }
 
   async saveData(data: any): Promise<void> {
     log.info("Writing sync data");
-    await toWriteToPath(data, this.vaultPath, ".obsidian", PLUGIN_DATA_FILE);
+    await toWrite(data, this.vaultPath, ".obsidian", PLUGIN_DATA_FILE);
   }
 }

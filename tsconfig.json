@@ -10,7 +10,8 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "lib": ["dom", "es5", "scripthost", "es2019"],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"]
 }

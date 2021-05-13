@@ -1,5 +1,5 @@
 import path from "path";
-import { failIf, fileStats, read, to, toReadFromPath } from "../utils";
+import { failIf, fileStats, read, to, toRead } from "obsidian-utils";
 import { log } from "../Logger";
 
 import type { PluginManifest } from "obsidian";
@@ -24,11 +24,7 @@ export async function readPluginFromDisk(
   );
   failIf(manifestReadError, `Manifest failed to load: ${manifestReadError}`);
   const manifest: PluginManifest = JSON.parse(rawManifest);
-  const [, rawData] = await toReadFromPath(
-    pluginsDirPath,
-    pluginID,
-    "data.json"
-  );
+  const [, rawData] = await toRead(pluginsDirPath, pluginID, "data.json");
   const results: InstalledPluginInfo = {
     manifest,
     data: rawData ? JSON.parse(rawData) : undefined,
